@@ -1,0 +1,21 @@
+# Swagger Config file
+
+openapi: "3.0.0"
+info:
+  title: "PixSmush Flask  REST API"
+  description: "An API about image compression"
+  version: "1.0.0"
+
+servers:
+  - url: "/api/v1"
+
+paths:
+  /users:
+    get:
+      operationId: ""
+      tags:
+        - "users"
+      summary: "Get all the users"
+      responses:
+        "200":
+          description: "Success"
