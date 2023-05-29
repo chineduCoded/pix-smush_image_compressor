@@ -2,11 +2,13 @@
 from flask import Blueprint, jsonify, request
 from ..models.user import User
 from .. import db
+from flask_jwt_extended import jwt_required
+# from ..utils.protected_route import protected
 
 user_bp = Blueprint(
-        "user_bp",
-        __name__,
-        url_prefix="/api/v1"
+    "user_bp",
+    __name__,
+    url_prefix="/api/v1"
 )
 
 
@@ -17,24 +19,34 @@ def get_users():
     users_list = [user.to_json() for user in users]
     return jsonify(users_list)
 
+
 @user_bp.route("/users/<user_id>", methods=["GET"])
+@jwt_required(fresh=True)
 def get_user(user_id):
     """Get a single user"""
-    pass
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    return jsonify(user.to_json()), 200
+
 
 @user_bp.route("/users/<user_id>", methods=["PUT"])
+@jwt_required(fresh=True)
 def update_user(user_id):
     """Updates a user"""
     body = request.get_json()
     user = User.query.get(user_id)
     if user:
         user.username = body.get("username", user.username)
+        user.is_admin = body.get("is_admin", user.is_admin)
         db.session.commit()
         return f"User {user_id} updated", 200
     else:
         return "Update not successfully!"
 
+
 @user_bp.route("/users/<user_id>", methods=["DELETE"])
+@jwt_required(fresh=True)
 def delete_user(user_id):
     """Deletes a user"""
     user = User.query.get(user_id)

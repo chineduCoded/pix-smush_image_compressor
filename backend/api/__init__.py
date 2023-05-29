@@ -3,8 +3,8 @@ import config
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
-#import connexion
-#from .. import config
+# import connexion
+# from .. import config
 
 bcrypt = Bcrypt()
 db = SQLAlchemy()
@@ -14,8 +14,8 @@ jwt = JWTManager()
 def create_app():
     """Initialize the core application."""
     app = Flask(__name__)
-    #app = connexion.App(__name__, specification_dir="../")
-    #app.add_api("swagger.yml")
+    # app = connexion.App(__name__, specification_dir="../")
+    # app.add_api("swagger.yml")
     app.config.from_object('config.DevConfig')
 
     # Initialize Plugins
@@ -30,7 +30,7 @@ def create_app():
         from api.resources import auth
 
         # db
-        #db.drop_all()
+        # db.drop_all()
         db.create_all()
 
         # Register Blueprints
