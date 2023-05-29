@@ -12,7 +12,7 @@ class Config:
 
     # General Config
     FLASK_APP = environ.get("FLASK_APP")
-    SECRET_KEY = environ.get("SECRET_KEY")
+    SECRET_KEY = environ.get("JWT_SECRET_KEY")
     # STATIC_FOLDER = environ.get("STATIC_FOLDER")
     # TEMPLATES_FOLDER = environ..get("TEMPLATES_FOLDER")
 

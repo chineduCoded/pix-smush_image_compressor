@@ -22,15 +22,6 @@ def get_user(user_id):
     """Get a single user"""
     pass
 
-@user_bp.route("/users", methods=["POST"])
-def create_user():
-    """Creates user"""
-    body = request.get_json()
-    user = User(**body)
-    db.session.add(user)
-    db.session.commit()
-    return jsonify({"id": user.id}), 201
-
 @user_bp.route("/users/<user_id>", methods=["PUT"])
 def update_user(user_id):
     """Updates a user"""

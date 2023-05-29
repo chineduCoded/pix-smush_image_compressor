@@ -2,11 +2,13 @@ from flask import Flask
 import config
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from flask_jwt_extended import JWTManager
 #import connexion
 #from .. import config
 
 bcrypt = Bcrypt()
 db = SQLAlchemy()
+jwt = JWTManager()
 
 
 def create_app():
@@ -18,12 +20,14 @@ def create_app():
 
     # Initialize Plugins
     bcrypt.init_app(app)
+    jwt.init_app(app)
     db.init_app(app)
 
     with app.app_context():
         # Includes routes
         from api.resources import home
         from api.resources import user
+        from api.resources import auth
 
         # db
         #db.drop_all()
@@ -32,5 +36,6 @@ def create_app():
         # Register Blueprints
         app.register_blueprint(home.home_bp)
         app.register_blueprint(user.user_bp)
+        app.register_blueprint(auth.auth_bp)
 
         return app
