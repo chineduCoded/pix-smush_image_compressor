@@ -2,6 +2,7 @@
 from .. import db
 import uuid
 from datetime import datetime
+from flask_bcrypt import generate_password_hash, check_password_hash
 
 class User(db.Model):
     """User model"""
@@ -22,6 +23,12 @@ class User(db.Model):
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
+    
+    def hash_password(self):
+        self.password = generate_password_hash(self.password).decode('utf8')
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
 
     def __repr__(self):
         return "<User {}".format(self.username)

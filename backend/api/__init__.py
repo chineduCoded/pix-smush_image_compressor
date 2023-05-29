@@ -5,7 +5,7 @@ from flask_bcrypt import Bcrypt
 #import connexion
 #from .. import config
 
-
+bcrypt = Bcrypt()
 db = SQLAlchemy()
 
 
@@ -17,6 +17,7 @@ def create_app():
     app.config.from_object('config.DevConfig')
 
     # Initialize Plugins
+    bcrypt.init_app(app)
     db.init_app(app)
 
     with app.app_context():

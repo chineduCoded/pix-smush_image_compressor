@@ -1,0 +1,15 @@
+# Exclude virtual environment folder
+backend/.venv/
+
+# Exclude environment variables file
+backend/.env
+
+# Exclude Visual Studio Code settings folder
+backend/.vscode/
+
+# Exclude UI project folders
+ui/.venv/
+ui/.env
+ui/.vscode/
+
+.vscode
