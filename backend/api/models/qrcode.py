@@ -1,5 +1,4 @@
 from .. import db
-from .. import cache
 import uuid
 from datetime import datetime
 import qrcode
@@ -12,10 +11,10 @@ class QRCode(db.Model):
     id = db.Column(db.String(60), primary_key=True, unique=True,
                    default=lambda: str(uuid.uuid4()))
     image_id = db.Column(db.String(60), db.ForeignKey(
-        'image.id', ondelete="CASCADE"), nullable=False)
+        'images.id', ondelete="CASCADE"), nullable=False)
     qr_code_image_url = db.Column(db.String(200))
     is_active = db.Column(db.Boolean, default=True)
-    description = db.Column(db.String)
+    description = db.Column(db.String(60))
     created_at = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     updated_at = db.Column(
@@ -23,12 +22,7 @@ class QRCode(db.Model):
 
     @property
     def qr_code_data(self):
-        cache_key = f"qr_code_{self.id}"
-        qr_code_data = cache.get(cache_key)
-        if qr_code_data is None:
-            qr_code_data = self.generate_qrcode()
-            cache.set(cache_key, qr_code_data)
-        return qr_code_data
+        return self.generate_qrcode()
 
     def generate_qrcode(self):
         """Generate the PNG QR code"""

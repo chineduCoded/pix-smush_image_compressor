@@ -1,7 +1,7 @@
-"""Lossless Functions"""
 import numpy as np
 import zlib
 import json
+from .custom_jsonencoder import MyEncoder
 
 
 def divide_into_blocks(image, block_size):
@@ -62,7 +62,7 @@ def compress_lossless(image, compression_settings):
     encoded_data = run_length_encode(transformed_blocks)
 
     # Serialize the encoded data as JSON
-    serialized_data = json.dumps(encoded_data)
+    serialized_data = json.dumps(encoded_data, cls=MyEncoder)
 
     # Compress the data using zlib
     compressed_data = zlib.compress(serialized_data.encode('utf-8'))

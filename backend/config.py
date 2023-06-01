@@ -27,6 +27,8 @@ class DevConfig(Config):
     SQLALCHEMY_DATABASE_URI = environ.get("DEV_DATABASE_URI")
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    CACHE_TYPE = "simpleCache"
+    CACHE_DEFAULT_TIMEOUT = 300
 
 
 class ProdConfig(Config):
@@ -34,3 +36,4 @@ class ProdConfig(Config):
     FLASK_ENV = "production"
     FLASK_DEBUG = False
     SQLALCHEMY_DATABASE_URI = environ.get("PROD_DATABASE_URI")
+    CACHE_TYPE = "memcached"
