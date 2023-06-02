@@ -14,5 +14,6 @@ class MyEncoder(json.JSONEncoder):
             return obj.decode("utf-8")
         if isinstance(obj, tuple):
             return list(obj)  # Convert tuples to lists
-
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
         return super().default(obj)

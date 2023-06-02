@@ -35,7 +35,7 @@ def create_app():
         from api.resources import auth
         from api.resources import image
 
-        # db
+        # db create and drop
         # db.drop_all()
         db.create_all()
 

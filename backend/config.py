@@ -18,6 +18,8 @@ class Config:
     JWT_SECRET_KEY = environ.get("JWT_SECRET_KEY")
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=7)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(minutes=30)
+    BASE_URL = environ.get("BASE_URL")
+    TEMP_DIR = environ.get("TEMP_DIR")
 
 
 class DevConfig(Config):

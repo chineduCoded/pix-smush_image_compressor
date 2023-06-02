@@ -1,8 +1,8 @@
+from flask import current_app
 from .. import db
 import uuid
 from datetime import datetime
 from .qrcode import QRCode
-from ..utils.bit_depth2json import bit_depth2json_serializable
 from urllib.parse import quote_plus
 
 
@@ -29,7 +29,7 @@ class Image(db.Model):
     compression_type = db.Column(db.String(20))
     exif_data = db.Column(db.JSON)
     compressed_url = db.Column(db.String(200))
-    compressed_data = db.Column(db.BLOB)
+    compressed_data = db.Column(db.LargeBinary)
     upload_at = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     updated_at = db.Column(
@@ -40,7 +40,7 @@ class Image(db.Model):
         Generates the download URL based on the image's file name.
         Assumes that the download route is mapped to '/api/downloads'.
         """
-        base_url = 'https://127.0.0.1/api/downloads/'  # Replace with your base URL
+        base_url = current_app.config["BASE_URL"]  # Replace with your base URL
         encoded_name = quote_plus(self.file_name)
         download_url = base_url + encoded_name
         self.download_url = download_url
@@ -51,7 +51,7 @@ class Image(db.Model):
         Generates the image URL based on the image's file name.
         Assumes that the images route is mapped to /api/images
         """
-        base_url = 'https://127.0.0.1/images/'  # Replace with your base URL
+        base_url = current_app.config["BASE_URL"]  # Replace with your base URL
         encoded_name = quote_plus(self.file_name)
         image_url = base_url + encoded_name
         self.image_url = image_url
@@ -71,9 +71,12 @@ class Image(db.Model):
             'color_mode': self.color_mode,
             'bit_depth': self.bit_depth,
             'compression_type': self.compression_type,
+            'exif_data': self.exif_data,
+            'compression_url': self.compressed_url,
             'compression_data': self.compressed_data,
-            'image_url': self.image_url,
-            'download_url': self.download_url
+            'image_url': self.generate_image_url(),
+            'download_url': self.generate_download_url(),
+            'uplaoded_at': self.upload_at
         }
         return compression_details
 
