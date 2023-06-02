@@ -10,8 +10,8 @@ class QRCode(db.Model):
     __tablename__ = 'qrcode'
     id = db.Column(db.String(60), primary_key=True, unique=True,
                    default=lambda: str(uuid.uuid4()))
-    image_id = db.Column(db.String(60), db.ForeignKey(
-        'images.id', ondelete="CASCADE"), nullable=False)
+    """image_id = db.Column(db.String(60), db.ForeignKey(
+        'images.id', ondelete="CASCADE"), nullable=False)"""
     qr_code_image_url = db.Column(db.String(200))
     is_active = db.Column(db.Boolean, default=True)
     description = db.Column(db.String(60))

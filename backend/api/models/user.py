@@ -15,8 +15,7 @@ class User(db.Model):
     email = db.Column(db.String(128), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=True)
     is_admin = db.Column(db.Boolean, default=False)
-    images = db.relationship("Image", backref="user",
-                             cascade="all, delete-orphan")
+    # images = db.relationship("Image", backref="user", cascade="all, delete-orphan")
     created_at = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     updated_at = db.Column(

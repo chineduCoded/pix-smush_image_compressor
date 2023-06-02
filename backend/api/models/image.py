@@ -11,10 +11,10 @@ class Image(db.Model):
     __tablename__ = "images"
     id = db.Column(db.String(60), primary_key=True, unique=True,
                    default=lambda: str(uuid.uuid4()))
-    user_id = db.Column(db.String(60), db.ForeignKey(
-        'users.id', ondelete="CASCADE"), nullable=False)
-    qr_code = db.relationship(
-        'QRCode', uselist=False, backref="image", cascade="all, delete-orphan")
+    """user_id = db.Column(db.String(60), db.ForeignKey(
+        'users.id', ondelete="CASCADE"), nullable=False)"""
+    """qr_code = db.relationship(
+        'QRCode', uselist=False, backref="image", cascade="all, delete-orphan")"""
     image_url = db.Column(db.String(200))
     download_url = db.Column(db.String(200))
     qr_code_url = db.Column(db.String(200))
