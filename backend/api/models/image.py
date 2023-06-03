@@ -64,7 +64,7 @@ class Image(db.Model):
         compression_details = {
             'id': self.id,
             'file_name': self.file_name,
-            'file_size': self.file_size,
+            'original_size': self.file_size,
             'file_format': self.file_format,
             'width': self.width,
             'height': self.height,
@@ -72,11 +72,9 @@ class Image(db.Model):
             'bit_depth': self.bit_depth,
             'compression_type': self.compression_type,
             'exif_data': self.exif_data,
-            'compression_url': self.compressed_url,
-            'compression_data': self.compressed_data,
             'image_url': self.generate_image_url(),
             'download_url': self.generate_download_url(),
-            'uplaoded_at': self.upload_at
+            'uploaded_at': self.upload_at
         }
         return compression_details
 

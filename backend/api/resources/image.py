@@ -9,7 +9,14 @@ from werkzeug.utils import secure_filename
 from .. import db
 from ..models.user import User
 from ..models.image import Image
-from ..utils.helper_func import calculate_compression_ratio
+from ..utils.helper_func import (
+    calculate_compression_ratio,
+    is_supported_format,
+    is_within_threshold,
+    is_exceeds_max_size,
+    allowed_file,
+    get_image_filesize
+)
 from ..utils.compress_lossless import compress_image
 from ..utils.custom_jsonencoder import MyEncoder
 import base64
@@ -57,23 +64,23 @@ def upload_compress():
     # Get the uploaded image from the request
     image_file = request.files['image']
 
+    # Get the uploaded image from the request
+    if image_file.filename == '':
+        return jsonify({"error": "No file selected."}), 400
+
+    # Check if the file format is suitable for compression
+    if not allowed_file(image_file.filename):
+        return jsonify({"error": f"{image_file.filename} unsupported for image compression!"}), 400
+
     # Read the image data
     image_data = image_file.read()
 
+    if is_exceeds_max_size(image_data):
+        return jsonify({"error": "Only 5MB image file allowed!"}), 400
+
     # Generate a secure filename for the uploaded file
     filename = secure_filename(image_file.filename)
-
-    # Save the uploaded file to a temporary location
-    target_dir = "temp"
-    os.makedirs(target_dir, exist_ok=True)
-    file_path = os.path.join(target_dir, filename)
-    image_file.save(file_path)
-
-    # Get the file size using os.path.getsize()
-    image_size = os.path.getsize(file_path)
-
-    # Remove the temporary file
-    os.remove(file_path)
+    file_size = get_image_filesize(image_file)
 
     # Read the image using Pillow
     pil_image = PILImage.open(image_file)
@@ -85,7 +92,6 @@ def upload_compress():
     converted_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
     # Extract image metadata
-    file_size = image_size
     file_format = filename.split('.')[-1]
     width = image.shape[1]
     height = image.shape[0]
@@ -104,14 +110,21 @@ def upload_compress():
         pass
     exif_data_serializable = json.dumps(exif_data, cls=MyEncoder)
 
-    # Compress the image
-    compressed_data = compress_image(image_data)
+    # Check if the file format is suitable for compression
+    if not is_supported_format(file_format):
+        return jsonify({"error": "Only JPG, JPEG, PNG, and WEBP formats are allowed!"}), 400
+
+    # Check if the file size is within the compression threshold
+    if not is_within_threshold(file_size):
+        compressed_data = compress_image(image_data)
+    else:
+        compressed_data = image_data
 
     # Convert the compressed data to bytes
-    compressed_bytes = bytes(compressed_data, encoding="utf-8")
+    compressed = compressed_data
 
     # Serialize the compressed data to JSON
-    compressed_data_serializable = json.dumps(compressed_bytes, cls=MyEncoder)
+    compressed_data_serializable = json.dumps(compressed, cls=MyEncoder)
 
     # Create a new Image object
     new_image = Image(
@@ -122,7 +135,7 @@ def upload_compress():
         width=width,
         height=height,
         bit_depth=bit_depth,
-        compression_type="lossless",
+        compression_type="lossless" if compressed_data != image_data else "none",
         exif_data=exif_data_serializable,
         compressed_data=compressed_data_serializable
     )
@@ -137,16 +150,16 @@ def upload_compress():
 
     if file_size != 0:
         percentage_saved = (space_saved / file_size) * 100
-        percentage_saved = str(round(percentage_saved, 2))
+        percentage_saved = round(percentage_saved, 2)
 
     # Return the saved image data and compression statistics
     response_data = {
         "message": "Image compressed and saved!",
-        "compressed_data": compressed_data_serializable,
-        "original_size": file_size,
         "compressed_size": compressed_size,
-        "space_saved": space_saved
+        "space_saved": space_saved,
+        "percentage_saved": percentage_saved,
+        "image_data": new_image.get_compression_data()
     }
+
     # Return a success response
-    # return jsonify({"image_id": new_image.id, "message": "successful"})
-    return jsonify(response_data)
+    return jsonify(response_data), 200

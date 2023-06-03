@@ -1,6 +1,7 @@
 """Custom JSON encoder"""
 import json
 import numpy as np
+import base64
 
 
 class MyEncoder(json.JSONEncoder):
@@ -12,7 +13,10 @@ class MyEncoder(json.JSONEncoder):
         if isinstance(obj, bytes):
             # Convert bytes to string using UTF-8 decoding
             try:
-                return obj.decode("utf-8")
+                return {
+                    '__type__': 'bytes',
+                    'value': base64.b64encode(obj).decode('utf-8')
+                }
             except TypeError:
                 return obj.decode('utf-8', 'ignore')
         if isinstance(obj, tuple):
