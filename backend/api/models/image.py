@@ -29,7 +29,7 @@ class Image(db.Model):
     compression_type = db.Column(db.String(20))
     exif_data = db.Column(db.JSON)
     compressed_url = db.Column(db.String(200))
-    compressed_data = db.Column(db.LargeBinary)
+    compressed_data = db.Column(db.JSON)
     upload_at = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     updated_at = db.Column(

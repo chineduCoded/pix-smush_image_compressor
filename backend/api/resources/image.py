@@ -10,8 +10,9 @@ from .. import db
 from ..models.user import User
 from ..models.image import Image
 from ..utils.helper_func import calculate_compression_ratio
-from ..utils.lossless_func import compress_lossless
+from ..utils.compress_lossless import compress_image
 from ..utils.custom_jsonencoder import MyEncoder
+import base64
 
 image_bp = Blueprint(
     "image_bp", __name__, url_prefix="/api"
@@ -55,6 +56,9 @@ def upload_compress():
 
     # Get the uploaded image from the request
     image_file = request.files['image']
+
+    # Read the image data
+    image_data = image_file.read()
 
     # Generate a secure filename for the uploaded file
     filename = secure_filename(image_file.filename)
@@ -100,15 +104,14 @@ def upload_compress():
         pass
     exif_data_serializable = json.dumps(exif_data, cls=MyEncoder)
 
-    # Customizable compression settings
-    compression_settings = {
-        'block_size': 8,
-        'resize_width': 0,
-        'resize_height': 0
-    }
-
     # Compress the image
-    compressed_data = compress_lossless(image, compression_settings)
+    compressed_data = compress_image(image_data)
+
+    # Convert the compressed data to bytes
+    compressed_bytes = bytes(compressed_data, encoding="utf-8")
+
+    # Serialize the compressed data to JSON
+    compressed_data_serializable = json.dumps(compressed_bytes, cls=MyEncoder)
 
     # Create a new Image object
     new_image = Image(
@@ -121,14 +124,14 @@ def upload_compress():
         bit_depth=bit_depth,
         compression_type="lossless",
         exif_data=exif_data_serializable,
-        # compressed_data=compressed_data
+        compressed_data=compressed_data_serializable
     )
 
     # Store the new image in the database
     db.session.add(new_image)
     db.session.commit()
 
-    compressed_size = len(compressed_data)
+    compressed_size = len(compressed_data_serializable)
     space_saved = file_size - compressed_size
     percentage_saved = 0
 
@@ -139,10 +142,11 @@ def upload_compress():
     # Return the saved image data and compression statistics
     response_data = {
         "message": "Image compressed and saved!",
-        "compressed_data": new_image.get_compression_data(),
+        "compressed_data": compressed_data_serializable,
         "original_size": file_size,
         "compressed_size": compressed_size,
         "space_saved": space_saved
     }
     # Return a success response
+    # return jsonify({"image_id": new_image.id, "message": "successful"})
     return jsonify(response_data)

@@ -11,7 +11,10 @@ class MyEncoder(json.JSONEncoder):
             return int(obj)  # Convert NumPy integer types to Python int
         if isinstance(obj, bytes):
             # Convert bytes to string using UTF-8 decoding
-            return obj.decode("utf-8")
+            try:
+                return obj.decode("utf-8")
+            except TypeError:
+                return obj.decode('utf-8', 'ignore')
         if isinstance(obj, tuple):
             return list(obj)  # Convert tuples to lists
         if isinstance(obj, np.ndarray):
