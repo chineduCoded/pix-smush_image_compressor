@@ -1,6 +1,7 @@
 import json
 import numpy as np
 import zlib
+import base64
 from ..utils.custom_jsonencoder import MyEncoder
 
 
@@ -57,9 +58,12 @@ def compress_lossless(image, compression_settings):
     serialized_data = json.dumps(encoded_data, cls=MyEncoder)
 
     try:
-        compressed_data = zlib.compress(serialized_data.encode('utf-8'))
+        compressed_data = zlib.compress(
+            serialized_data.encode('utf-8'), level=6)
     except zlib.error:
-        # Handle zlib compression error
         raise ValueError("Failed to compress data")
 
-    return compressed_data
+    compressed_data_serializable = base64.b64encode(
+        compressed_data).decode('utf-8')
+
+    return compressed_data_serializable

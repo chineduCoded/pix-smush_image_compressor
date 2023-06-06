@@ -2,6 +2,9 @@
 import json
 import numpy as np
 import base64
+from PIL.ExifTags import TAGS
+from PIL.TiffTags import TAGS as TIFF_TAGS
+from PIL.TiffImagePlugin import IFDRational
 
 
 class MyEncoder(json.JSONEncoder):
@@ -19,8 +22,14 @@ class MyEncoder(json.JSONEncoder):
                 }
             except TypeError:
                 return obj.decode('utf-8', 'ignore')
-        if isinstance(obj, tuple):
-            return list(obj)  # Convert tuples to lists
         if isinstance(obj, np.ndarray):
             return obj.tolist()
+        if isinstance(obj, IFDRational):
+            return float(obj)
+        if isinstance(obj, (tuple, list)):
+            return list(obj)
+        if isinstance(obj, dict):
+            return {TAGS.get(key, key): value for key, value in obj.items()}
+        if isinstance(obj, dict):
+            return {TIFF_TAGS.get(key, key): value for key, value in obj.items()}
         return super().default(obj)

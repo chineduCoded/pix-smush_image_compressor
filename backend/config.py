@@ -1,12 +1,14 @@
 """Flask App Configuration"""
 
-from os import environ, path
+from os import environ, path, makedirs
 from dotenv import load_dotenv
 from datetime import timedelta
 
 # Specify a `.env` file containing key/value config values
 basedir = path.abspath(path.dirname(__file__))
 load_dotenv(path.join(basedir, '.env'))
+
+folder_path = "/api/images"
 
 
 class Config:
@@ -20,6 +22,7 @@ class Config:
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(minutes=30)
     BASE_URL = environ.get("BASE_URL")
     TEMP_DIR = environ.get("TEMP_DIR")
+    IMAGE_UPLOAD = environ.get("IMAGE_UPLOAD")
 
 
 class DevConfig(Config):

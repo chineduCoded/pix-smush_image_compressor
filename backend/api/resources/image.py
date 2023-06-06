@@ -1,60 +1,39 @@
-"""Image Blueprint"""
 import os
-from flask import Blueprint, jsonify, request
-import cv2
-import numpy as np
-import json
-from PIL import Image as PILImage
+from flask import Blueprint, jsonify, request, current_app
 from werkzeug.utils import secure_filename
+from PIL import Image as PILImage, ExifTags
+import json
+import base64
 from .. import db
-from ..models.user import User
-from ..models.image import Image
+from ..models.image import Image, ImageBlob
 from ..utils.helper_func import (
     calculate_compression_ratio,
     is_supported_format,
     is_within_threshold,
     is_exceeds_max_size,
     allowed_file,
-    get_image_filesize
+    get_image_filesize,
+    get_size_format,
+    get_file_extension
 )
 from ..utils.compress_lossless import compress_image
 from ..utils.custom_jsonencoder import MyEncoder
-import base64
+from ..utils.get_compress_size import get_compressed_size as get_size
 
 image_bp = Blueprint(
     "image_bp", __name__, url_prefix="/api"
 )
 
 
-@image_bp.route("/images", methods=["GET"])
-def get_images_with_qrcodes():
-    images = Image.query.all()
-    result = [{
-        'image_id': image.id,
-        'user_id': image.user_id,
-        'filename': image.file_name,
-        'image_url': image.image_url,
-        'download_url': image.download_url,
-        'compression_ratio': calculate_compression_ratio(image),
-        'qr_code_data': image.qr_code.qr_code_data if image.qr_code else None
-    } for image in images]
-    return jsonify(result), 200
-
-
-@image_bp.route("/images/user/<user_id>", methods=["GET"])
-def get_user_images_with_qrcodes(user_id):
-    user = User.query.get(user_id)
-    if not user:
-        return jsonify({'message': 'User not found'}), 404
-    images = user.images
-    result = [{
-        'image_id': image.id,
-        'image_url': image.image_url,
-        'filename': image.file_name,
-        'download_url': image.download_url,
-        'qr_code_data': image.qr_code.qr_code_data if image.qr_code else None
-    } for image in images]
-    return jsonify(result), 200
+def extract_exif_data(image):
+    exif_data = image.getexif()
+    if exif_data is not None:
+        exif_dict = {}
+        for tag_id, value in exif_data.items():
+            tag_name = ExifTags.TAGS.get(tag_id, tag_id)
+            exif_dict[tag_name] = value
+        return exif_dict
+    return {}
 
 
 @image_bp.route('/images/compress', methods=['POST'])
@@ -83,83 +62,90 @@ def upload_compress():
     file_size = get_image_filesize(image_file)
 
     # Read the image using Pillow
-    pil_image = PILImage.open(image_file)
+    image = PILImage.open(image_file)
 
-    # Convert the image to OpenCV format (BGR)
-    image = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
+    file_extension = get_file_extension(image)
 
-    # Convert the image to a different color space (e.g., BGR to HSV)
-    converted_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    file_format = image.format
+    color_mode = image.mode
+    width = image.width
+    height = image.height
+    bit_depth = image.mode
 
-    # Extract image metadata
-    file_format = filename.split('.')[-1]
-    width = image.shape[1]
-    height = image.shape[0]
-    color_mode = converted_image.shape[2]
-    bit_depth = image.dtype.itemsize * 8
-
-    # Extract EXIF data
-    exif_data = {}
-    try:
-        exif_get = pil_image._getexif()
-        exif_data = {
-            "camera_make": exif_get.get(0x010f),
-            "camera_model": exif_get.get(0x0110)
-        }
-    except:
-        pass
-    exif_data_serializable = json.dumps(exif_data, cls=MyEncoder)
-
-    # Check if the file format is suitable for compression
-    if not is_supported_format(file_format):
-        return jsonify({"error": "Only JPG, JPEG, PNG, and WEBP formats are allowed!"}), 400
+    exif_dict = extract_exif_data(image)
+    exif_json = json.dumps(exif_dict, cls=MyEncoder)
 
     # Check if the file size is within the compression threshold
     if not is_within_threshold(file_size):
-        compressed_data = compress_image(image_data)
+        compressed_data = compress_image(image)
     else:
         compressed_data = image_data
 
-    # Convert the compressed data to bytes
-    compressed = compressed_data
+    # Calculate the original and compressed file sizes
 
-    # Serialize the compressed data to JSON
-    compressed_data_serializable = json.dumps(compressed, cls=MyEncoder)
+    # Calculate the original and compressed file sizes
+    compressed_size = get_size(compressed_data, file_extension)
+    if compressed_size is not None:
+        original_size = file_size
+        space_saved = original_size - compressed_size
 
-    # Create a new Image object
-    new_image = Image(
-        file_name=filename,
-        file_size=file_size,
-        file_format=file_format,
-        color_mode=color_mode,
-        width=width,
-        height=height,
-        bit_depth=bit_depth,
-        compression_type="lossless" if compressed_data != image_data else "none",
-        exif_data=exif_data_serializable,
-        compressed_data=compressed_data_serializable
-    )
+        # Calculate the percentage and space saved
+        percentage_saved = (space_saved / original_size) * 100
 
-    # Store the new image in the database
-    db.session.add(new_image)
-    db.session.commit()
+        compression_ratio = calculate_compression_ratio(
+            original_size, compressed_size)
 
-    compressed_size = len(compressed_data_serializable)
-    space_saved = file_size - compressed_size
-    percentage_saved = 0
+        # Save the compressed image to the file system
+        save_path = os.path.join(current_app.config["IMAGE_UPLOAD"], filename)
+        with open(save_path, "wb") as f:
+            f.write(compressed_data)
 
-    if file_size != 0:
-        percentage_saved = (space_saved / file_size) * 100
-        percentage_saved = round(percentage_saved, 2)
+        # Create a new Image object
+        new_image = Image(
+            file_name=filename,
+            file_size=file_size,
+            compressed_size=compressed_size,
+            percentage_saved=percentage_saved,
+            space_saved=space_saved,
+            compression_ratio=compression_ratio,
+            file_format=file_format,
+            color_mode=color_mode,
+            width=width,
+            height=height,
+            bit_depth=bit_depth,
+            exif_data=exif_json
+        )
 
-    # Return the saved image data and compression statistics
-    response_data = {
-        "message": "Image compressed and saved!",
-        "compressed_size": compressed_size,
-        "space_saved": space_saved,
-        "percentage_saved": percentage_saved,
-        "image_data": new_image.get_compression_data()
-    }
+        # Store the new image in the database
+        db.session.add(new_image)
+        db.session.commit()
 
-    # Return a success response
-    return jsonify(response_data), 200
+        # Create a new ImageBlob object for storing the compressed image data
+        new_image_blob = ImageBlob(
+            image_id=new_image.id,
+            filepath=save_path,
+            compressed_data=compressed_data
+        )
+
+        # Store the compressed image blob in the database
+        db.session.add(new_image_blob)
+        db.session.commit()
+
+        # Return the saved image data and compression statistics
+        response_data = {
+            "message": "successful!",
+            "compressed_size": get_size_format(new_image.compressed_size),
+            "original_size": get_size_format(new_image.file_size),
+            "filename": new_image.file_name,
+            "width": new_image.width,
+            "height": new_image.height,
+            "space_saved": get_size_format(new_image.space_saved),
+            "compression_ratio": new_image.compression_ratio,
+            "percentage_saved": new_image.percentage_saved,
+        }
+
+        # Return a success response
+        return jsonify(response_data), 200
+    else:
+        # Handle error appropriately
+        return jsonify({"error": "Failed to obtain compressed size."}), 500
