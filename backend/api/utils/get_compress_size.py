@@ -1,14 +1,14 @@
-import tempfile
 import os
+import tempfile
 from PIL import Image
 
 
 def get_compressed_size(compressed_data, file_extension):
-    file_extension = file_extension.lower()
-    supported_extensions = ['.png', '.webp', '.jpeg']
+    supported_extensions = ['.jpg', '.jpeg', '.png', '.webp']
 
     if file_extension not in supported_extensions:
-        raise ValueError("Unsupported file extension")
+        raise ValueError(
+            f"{file_extension.lower()} unsupported file extension!")
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=file_extension) as temp_file:
         temp_file.write(compressed_data)

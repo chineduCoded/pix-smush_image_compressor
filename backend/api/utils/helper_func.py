@@ -11,13 +11,12 @@ ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'webp'}
 MAX_FILE_SIZE = 5 * 1024 * 1024
 
 
-def get_file_extension(filename):
-    supported_extensions = ['.jpg', '.jpeg', '.png', '.webp']
-    file_extension = os.path.splitext(filename)[1]
-    if file_extension.lower() in supported_extensions:
-        return file_extension.lower()
-    else:
-        raise ValueError("Unsupported file extension")
+def get_file_extension(image_path):
+    try:
+        with Image.open(image_path) as img:
+            return img.format.lower()
+    except OSError:
+        return None
 
 
 def calculate_compression_ratio(original_size, compressed_size):

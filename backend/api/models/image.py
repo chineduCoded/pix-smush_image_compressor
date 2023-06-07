@@ -18,7 +18,7 @@ class Image(db.Model):
     qr_code_url = db.Column(db.String(200))"""
     blob = db.relationship(
         "ImageBlob", uselist=False, backref="images", cascade='all, delete-orphan')
-    file_name = db.Column(db.String(200))
+    file_name = db.Column(db.String(255))
     file_size = db.Column(db.Integer)
     compressed_size = db.Column(db.Integer)
     percentage_saved = db.Column(db.Numeric(precision=7, scale=2))
@@ -54,6 +54,7 @@ class ImageBlob(db.Model):
                    default=lambda: str(uuid.uuid4()))
     image_id = db.Column(db.String(60), db.ForeignKey(
         "images.id", ondelete="CASCADE"), primary_key=True)
+    file_name = db.Column(db.String(255))
     filepath = db.Column(db.String(255))
     compressed_data = db.Column(db.LargeBinary(length=(2**32) - 1))
 

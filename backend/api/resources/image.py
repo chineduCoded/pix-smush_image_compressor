@@ -18,7 +18,7 @@ from ..utils.helper_func import (
 )
 from ..utils.compress_lossless import compress_image
 from ..utils.custom_jsonencoder import MyEncoder
-from ..utils.get_compress_size import get_compressed_size as get_size
+from ..utils.get_compress_size import get_compressed_size
 
 image_bp = Blueprint(
     "image_bp", __name__, url_prefix="/api"
@@ -64,8 +64,6 @@ def upload_compress():
     # Read the image using Pillow
     image = PILImage.open(image_file)
 
-    file_extension = get_file_extension(image)
-
     file_format = image.format
     color_mode = image.mode
     width = image.width
@@ -81,10 +79,11 @@ def upload_compress():
     else:
         compressed_data = image_data
 
-    # Calculate the original and compressed file sizes
+    # Get file extension
+    file_ext = os.path.splitext(image_file.filename)[1].lower()
 
     # Calculate the original and compressed file sizes
-    compressed_size = get_size(compressed_data, file_extension)
+    compressed_size = get_compressed_size(compressed_data, file_ext)
     if compressed_size is not None:
         original_size = file_size
         space_saved = original_size - compressed_size
@@ -123,6 +122,7 @@ def upload_compress():
         # Create a new ImageBlob object for storing the compressed image data
         new_image_blob = ImageBlob(
             image_id=new_image.id,
+            file_name=filename,
             filepath=save_path,
             compressed_data=compressed_data
         )
@@ -134,8 +134,10 @@ def upload_compress():
         # Return the saved image data and compression statistics
         response_data = {
             "message": "successful!",
+            "image_id": new_image.id,
             "compressed_size": get_size_format(new_image.compressed_size),
             "original_size": get_size_format(new_image.file_size),
+            "original_format": new_image.file_format,
             "filename": new_image.file_name,
             "width": new_image.width,
             "height": new_image.height,
@@ -149,3 +151,9 @@ def upload_compress():
     else:
         # Handle error appropriately
         return jsonify({"error": "Failed to obtain compressed size."}), 500
+
+
+@image_bp.route("/images/<image_id>", methods=["GET"])
+def download_image(image_id):
+    """Download image file"""
+    pass
