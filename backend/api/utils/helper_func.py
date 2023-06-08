@@ -1,10 +1,15 @@
 """Helper Functions"""
-import os
-from PIL import Image, ExifTags
 import io
+import os
+import shutil
+import tempfile
+
+from flask import current_app
+from PIL import Image, ExifTags
 import numpy as np
-import cv2
-import heapq
+from sqlalchemy.orm.exc import NoResultFound
+
+from ..models.image import ImageBlob
 
 
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'webp'}
@@ -105,3 +110,66 @@ def get_size_format(b, factor=1024, suffix="B"):
             return f"{b:.2f}{unit}{suffix}"
         b /= factor
     return f"{b:.2f}Y{suffix}"
+
+
+def get_original_format(image_id):
+    """
+    Retrieves the original file format of an image based on its ID.
+
+    Args:
+        image_id (str): The ID of the image.
+
+    Returns:
+        str: The original file format of the image (e.g., 'png', 'jpeg', 'jpg', 'webp').
+        None: If the file format could not be determined or the image does not exist.
+    """
+    try:
+        image_blob = ImageBlob.query.filter_by(image_id=image_id).first()
+
+        if image_blob is None:
+            return None
+
+        image_file_path = image_blob.file_name
+
+        with Image.open(image_file_path) as image:
+            original_format = image.format
+            return original_format.lower() if original_format else None
+    except NoResultFound:
+        return None
+    except (IOError, FileNotFoundError):
+        return None
+
+
+def save_image_data(image_data, filename):
+    """Save the compressed image to the file system and return the file path.
+
+    Args:
+        image_data (bytes): Compressed image data.
+        filename (str): Name of the file.
+
+    Returns:
+        str: File path of the saved image.
+    """
+    # Generate the save path by joining the configured image upload directory and the filename
+    save_path = os.path.join(current_app.config["IMAGE_UPLOAD"], filename)
+
+    # Check if the file with the same filename already exists
+    if os.path.exists(save_path):
+        # Append a unique suffix to the filename to avoid duplication
+        file_root, file_ext = os.path.splitext(filename)
+        suffix = 1
+        while os.path.exists(save_path):
+            new_filename = f"{file_root}_{suffix}{file_ext}"
+            save_path = os.path.join(
+                current_app.config["IMAGE_UPLOAD"], new_filename)
+            suffix += 1
+
+    # Create a temporary file to save the compressed image
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        temp_file.write(image_data)
+        temp_file_path = temp_file.name
+
+    # Move the temporary file to the save path
+    shutil.move(temp_file_path, save_path)
+
+    return save_path

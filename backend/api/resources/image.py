@@ -1,24 +1,27 @@
 import os
-from flask import Blueprint, jsonify, request, current_app
+import magic
+from flask import Blueprint, jsonify, request, current_app, send_file
 from werkzeug.utils import secure_filename
 from PIL import Image as PILImage, ExifTags
 import json
-import base64
+from io import BytesIO
+import mimetypes
 from .. import db
 from ..models.image import Image, ImageBlob
 from ..utils.helper_func import (
     calculate_compression_ratio,
-    is_supported_format,
     is_within_threshold,
     is_exceeds_max_size,
     allowed_file,
     get_image_filesize,
     get_size_format,
-    get_file_extension
+    get_original_format,
+    save_image_data
 )
-from ..utils.compress_lossless import compress_image
+from ..utils.compress import compress_image, decompressed_file
 from ..utils.custom_jsonencoder import MyEncoder
 from ..utils.get_compress_size import get_compressed_size
+from ..utils.fetch_compressed import fetch_compressed_image_data
 
 image_bp = Blueprint(
     "image_bp", __name__, url_prefix="/api"
@@ -95,9 +98,7 @@ def upload_compress():
             original_size, compressed_size)
 
         # Save the compressed image to the file system
-        save_path = os.path.join(current_app.config["IMAGE_UPLOAD"], filename)
-        with open(save_path, "wb") as f:
-            f.write(compressed_data)
+        file_path = save_image_data(compressed_data, filename)
 
         # Create a new Image object
         new_image = Image(
@@ -108,6 +109,7 @@ def upload_compress():
             space_saved=space_saved,
             compression_ratio=compression_ratio,
             file_format=file_format,
+            file_path=file_path,
             color_mode=color_mode,
             width=width,
             height=height,
@@ -123,7 +125,6 @@ def upload_compress():
         new_image_blob = ImageBlob(
             image_id=new_image.id,
             file_name=filename,
-            filepath=save_path,
             compressed_data=compressed_data
         )
 
@@ -134,11 +135,12 @@ def upload_compress():
         # Return the saved image data and compression statistics
         response_data = {
             "message": "successful!",
-            "image_id": new_image.id,
+            "id": new_image.id,
             "compressed_size": get_size_format(new_image.compressed_size),
             "original_size": get_size_format(new_image.file_size),
             "original_format": new_image.file_format,
             "filename": new_image.file_name,
+            "file_path": new_image.file_path,
             "width": new_image.width,
             "height": new_image.height,
             "space_saved": get_size_format(new_image.space_saved),
@@ -147,7 +149,7 @@ def upload_compress():
         }
 
         # Return a success response
-        return jsonify(response_data), 200
+        return jsonify(response_data), 201
     else:
         # Handle error appropriately
         return jsonify({"error": "Failed to obtain compressed size."}), 500
@@ -156,4 +158,87 @@ def upload_compress():
 @image_bp.route("/images/<image_id>", methods=["GET"])
 def download_image(image_id):
     """Download image file"""
-    pass
+    # Retrieve the image record from the database
+    image = Image.query.get(image_id)
+
+    if image is None:
+        return jsonify({"error": "Image not found!"}), 404
+
+    # Check if compressed data is available in the database
+    compressed_data = image.blob.compressed_data
+    try:
+        if compressed_data:
+            decompressed_data = decompressed_file(
+                compressed_data, image.file_format)
+            if decompressed_data is None:
+                return jsonify({"error": "Error decompressing the image!"}), 500
+        else:
+            # Determine the path to the image file on the filesystem
+            image_path = save_image_data(compressed_data, image.file_name)
+
+            # Check if the image file exists
+            if not os.path.exists(image_path):
+                return jsonify({"error": "Image file not found!"}), 404
+
+            # Read the image file from the filesystem
+            with open(image_path, 'rb') as file:
+                decompressed_data = file.read()
+
+        # Determine the MIME type of the image based on the file extension
+        mime_type, _ = mimetypes.guess_type(image.file_name)
+
+        return send_file(
+            BytesIO(decompressed_data[0]),
+            mimetype=mime_type,
+            as_attachment=True,
+            download_name=image.file_name
+        )
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+
+
+@image_bp.route("/images", methods=["GET"])
+def get_all_images():
+    """Gets all images"""
+    images = Image.query.all()
+    image_list = [
+        {
+            "message": "successful!",
+            "id": image.id,
+            "compressed_size": get_size_format(image.compressed_size),
+            "original_size": get_size_format(image.file_size),
+            "original_format": image.file_format,
+            "filename": image.file_name,
+            "file_path": image.file_path,
+            "width": image.width,
+            "height": image.height,
+            "space_saved": get_size_format(image.space_saved),
+            "compression_ratio": image.compression_ratio,
+            "percentage_saved": image.percentage_saved
+        } for image in images]
+
+    return jsonify(image_list), 200
+
+
+@image_bp.route("/images", methods=["DELETE"])
+def delete_all_images():
+    # Retrieve all image records from the database
+    images = Image.query.all()
+
+    # Loop through each image and delete the corresponding file
+    for image in images:
+        image_path = os.path.join(
+            current_app.config["IMAGE_UPLOAD"], image.file_name)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+    # Delete all image records from the database
+    deleted = Image.query.delete()
+
+    # Commit the changes to the database
+    db.session.commit()
+
+    if deleted:
+        return jsonify({"message": "All images deleted successfully!"}), 200
+    else:
+        return jsonify({"message": "All images deleted already!"}), 404

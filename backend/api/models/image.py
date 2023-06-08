@@ -25,6 +25,7 @@ class Image(db.Model):
     space_saved = db.Column(db.Integer)
     compression_ratio = db.Column(db.Numeric(precision=7, scale=1))
     file_format = db.Column(db.String(10))
+    file_path = db.Column(db.String(255))
     width = db.Column(db.Integer)
     height = db.Column(db.Integer)
     color_mode = db.Column(db.String(10))
@@ -53,9 +54,8 @@ class ImageBlob(db.Model):
     id = db.Column(db.String(60), primary_key=True, unique=True,
                    default=lambda: str(uuid.uuid4()))
     image_id = db.Column(db.String(60), db.ForeignKey(
-        "images.id", ondelete="CASCADE"), primary_key=True)
+        "images.id", ondelete="CASCADE"), nullable=False)
     file_name = db.Column(db.String(255))
-    filepath = db.Column(db.String(255))
     compressed_data = db.Column(db.LargeBinary(length=(2**32) - 1))
 
     def __repr__(self):
