@@ -3,6 +3,7 @@ import io
 import os
 import shutil
 import tempfile
+import base64
 
 from flask import current_app
 from PIL import Image, ExifTags
@@ -173,3 +174,12 @@ def save_image_data(image_data, filename):
     shutil.move(temp_file_path, save_path)
 
     return save_path
+
+
+def decode_image_data(encoded_image_data):
+    """Decodes encoded image data"""
+    if encoded_image_data:
+        decoded_image_data = base64.b64decode(encoded_image_data)
+        image = Image.open(io.BytesIO(decoded_image_data))
+        return image
+    return None

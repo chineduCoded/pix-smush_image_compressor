@@ -3,6 +3,8 @@ backend/.venv/
 
 # Exclude environment variables file
 backend/.env
+backend/credentials.env
+backend/password.txt
 
 
 # Exclude UI project folders

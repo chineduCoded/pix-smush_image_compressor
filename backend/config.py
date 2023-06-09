@@ -1,6 +1,5 @@
 """Flask App Configuration"""
-
-from os import environ, path, makedirs
+from os import path, environ, makedirs
 from dotenv import load_dotenv
 from datetime import timedelta
 
@@ -8,7 +7,8 @@ from datetime import timedelta
 basedir = path.abspath(path.dirname(__file__))
 load_dotenv(path.join(basedir, '.env'))
 
-folder_path = "/api/images"
+makedirs("/api/images", exist_ok=True)
+makedirs("saved_qrcode", exist_ok=True)
 
 
 class Config:
@@ -23,6 +23,7 @@ class Config:
     BASE_URL = environ.get("BASE_URL")
     TEMP_DIR = environ.get("TEMP_DIR")
     IMAGE_UPLOAD = environ.get("IMAGE_UPLOAD")
+    QR_CODE_SAVE_PATH = environ.get("QRCODE_SAVED_IMG")
 
 
 class DevConfig(Config):

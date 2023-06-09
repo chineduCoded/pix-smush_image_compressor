@@ -1,5 +1,4 @@
 import os
-import magic
 from flask import Blueprint, jsonify, request, current_app, send_file
 from werkzeug.utils import secure_filename
 from PIL import Image as PILImage, ExifTags
@@ -15,13 +14,13 @@ from ..utils.helper_func import (
     allowed_file,
     get_image_filesize,
     get_size_format,
-    get_original_format,
-    save_image_data
+    save_image_data,
+    decode_image_data
 )
 from ..utils.compress import compress_image, decompressed_file
 from ..utils.custom_jsonencoder import MyEncoder
 from ..utils.get_compress_size import get_compressed_size
-from ..utils.fetch_compressed import fetch_compressed_image_data
+
 
 image_bp = Blueprint(
     "image_bp", __name__, url_prefix="/api"
@@ -132,6 +131,9 @@ def upload_compress():
         db.session.add(new_image_blob)
         db.session.commit()
 
+        encoded_data = new_image.get_qr_code_png()
+        qr_code_image = decode_image_data(encoded_data)
+
         # Return the saved image data and compression statistics
         response_data = {
             "message": "successful!",
@@ -146,6 +148,7 @@ def upload_compress():
             "space_saved": get_size_format(new_image.space_saved),
             "compression_ratio": new_image.compression_ratio,
             "percentage_saved": new_image.percentage_saved,
+            "qr_code_image": encoded_data
         }
 
         # Return a success response
@@ -188,7 +191,7 @@ def download_image(image_id):
         mime_type, _ = mimetypes.guess_type(image.file_name)
 
         return send_file(
-            BytesIO(decompressed_data[0]),
+            decompressed_data[0],
             mimetype=mime_type,
             as_attachment=True,
             download_name=image.file_name

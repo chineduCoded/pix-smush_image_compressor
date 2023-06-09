@@ -1,0 +1,31 @@
+/* Footer style */
+
+footer {
+    display: flex;
+    justify-content: center;
+    height: 180px;
+    background-color: rgb(244, 244, 244);
+    color: rba(115, 115, 115);
+    padding: 30px;
+    text-align: center;
+}
+
+.footer-content {
+    flex-direction: column;
+}
+
+h1 {
+    color: rgb(24, 92, 77);
+    margin-block-end: 5px;
+}
+
+.copy {
+    margin-block-end: 10px;
+}
+
+.social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}

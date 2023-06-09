@@ -89,14 +89,37 @@ def decompress_image(compressed_data, original_format):
 
 
 def decompressed_file(compressed_data, file_format):
+    """
+    Decompresses a compressed image data and returns the uncompressed image.
+
+    Args:
+        compressed_data (bytes): The compressed image data as a bytes object.
+        original_format (str): The original format of the image ('png', 'jpeg', 'jpg', 'webp').
+
+    Returns:
+        PIL.Image.Image: The decompressed image as a PIL Image object.
+    except:
+        Exception as str(e)
+    """
     try:
-        image = Image.open(BytesIO(compressed_data))
-        # Save the decompressed image to a BytesIO buffer
-        output_buffer = BytesIO()
-        image.save(output_buffer, format=file_format)
-        output_buffer.seek(0)
+        with Image.open(BytesIO(compressed_data)) as image:
+            # Convert to RGB color mode for color images
+            if image.mode not in ['1', 'L', 'RGB', 'RGBA']:
+                image = image.convert('RGB')
+
+            # Create a new BytesIO buffer to store the decompressed image
+            output_buffer = BytesIO()
+
+            # Save the decompressed image to the output buffer
+            image.save(output_buffer, format=file_format)
+
+            # Reset the buffer position to the beginning
+            output_buffer.seek(0)
     except Exception as e:
         return {'error': str(e)}, 400
 
-    # Return the decompressed image as a response
-    return output_buffer.getvalue(), 200, {'Content-Type': f'image/{file_format}'}
+    # Get the size of the output buffer
+    buffer_size = output_buffer.getbuffer().nbytes
+
+    # Return the decompressed image and additional information
+    return output_buffer, buffer_size, 200, {'Content-Type': f'image/{file_format}'}
