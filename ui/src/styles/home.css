@@ -1,0 +1,46 @@
+/* Index page styles */
+.hero {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    margin-block-end: 50px;
+}
+
+.text {
+    font-size: clamp(25px, 5vw, 36px);
+    color: #000;
+    width: 80%;
+    margin: 0 auto;
+}
+
+.tag {
+    display: flex;
+    justify-content: center;
+
+}
+
+.tag-text {
+    padding: 10px;
+    border-radius: 3px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: rgb(249, 85, 64);
+    font-weight: 700;
+}
+
+.upload-container {
+    display: flex;
+    justify-content: center;
+    margin-block-end: 50px;
+}
+
+.upload {
+    width: 100%;
+    max-width: 800px;
+    max-height: 300px;
+    border: 4px dotted rgb(24, 92, 77);
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}

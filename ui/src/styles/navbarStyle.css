@@ -17,6 +17,10 @@ nav {
     max-width: 1000px;
 }
 
+.custom-link {
+    text-decoration: none;
+}
+
 .logo {
     display: flex;
     align-items: center;

@@ -1,15 +1,14 @@
 /* Main content */
 
 .content {
-    padding: 0 20px;
-    min-height: 59vh;
+    padding: 0 10px;
+    min-height: 60vh;
 }
 
 .container {
     max-width: 100%;
     margin: 0 auto;
-    padding: 20px;
-    /* background: #f8f8f8; */
+    padding: 10px;
 }
 
 @media (min-width: 1000px) {
