@@ -36,11 +36,38 @@
 
 .upload {
     width: 100%;
-    max-width: 800px;
-    max-height: 300px;
-    border: 4px dotted rgb(24, 92, 77);
-    border-radius: 5px;
+    max-width: 600px;
     display: flex;
+    align-items: center;
     flex-direction: column;
     padding: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 5px;
+    font-weight: 600;
+    color: rgb(115, 115, 115);
+    cursor: pointer;
+    border: 2px solid rgb(115, 115, 115);
+}
+
+.upload:hover {
+    border: 2px solid rgb(24, 92, 77);
+}
+
+.upload:hover .add-image {
+    border: 2px solid rgb(24, 92, 77);
+}
+
+.add-image {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 40px;
+    border: 2px solid rgb(115, 115, 115);
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    color: rgb(115, 115, 115);
 }
