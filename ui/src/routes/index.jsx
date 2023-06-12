@@ -1,9 +1,43 @@
-import React from 'react'
+import React, { useState } from 'react'
 import "../styles/home.css"
 import AddIcon from '../components/AddIcon'
 import UploadInCloudIcon from '../components/UploadIcon'
 
 export const HomeScreen = () => {
+    const [imageSrc, setImageSrc] = useState("")
+    const [isLoading, setIsLoading] = useState(false)
+    const [isCompressing, setIsCompressing] = useState(false)
+    const [isDownloadDisabled, setIsDownloadDisabled] = useState(true)
+
+    const handleImageUpload = (event) => {
+        const file = event.target.files[0]
+        const reader = new FileReader()
+
+        reader.onload = (e) => {
+            const image = new Image()
+            image.src = e.target.result
+
+            setIsLoading(true)
+
+            image.onload = () => {
+                setImageSrc(image.src)
+                setIsLoading(false)
+                setIsCompressing(true)
+
+                // Simulate compressing state for 2 seconds
+                setTimeout(() => {
+                    setIsCompressing(false)
+                    setIsDownloadDisabled(false)
+                }, 2000)
+            }
+
+        }
+
+        reader.readAsDataURL(file)
+    }
+
+    const handleDownload = () => { }
+
     return (
         <div>
             <dv className="hero">
@@ -28,19 +62,24 @@ export const HomeScreen = () => {
                                 type="file"
                                 name='upload'
                                 id='upload-image'
+                                accept=".png, .jpg, .jpeg, .webp"
+                                onChange={handleImageUpload}
                                 hidden />
                         </div>
                     </div>
                 </label>
                 <div className='display-result'>
                     <div className='compressed'>
-                        <div className="compressed-image">
+                        <div className="compressed-image" style={{ backgroundImage: `url(${imageSrc})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
                             <div className='image-name'>
                                 <span>web_image.png</span>
                                 <button>X</button>
                             </div>
-                            <div className='saved-percentage'>-78%</div>
-                            <button type="submit" className='download'>Download</button>
+                            {/* {imageSrc && <div className="image-overlay"></div>} */}
+                            {/* <div className='saved-percentage'>-78%</div> */}
+                            {isLoading && <div className="loading-state">Uploading...</div>}
+                            {isCompressing && <div className="compressing-state">Compressing...</div>}
+                            <button type="submit" className='download' onClick={handleDownload} disabled={isDownloadDisabled}>Download</button>
                         </div>
                     </div>
                     <div className='compressed'>
