@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import "../styles/home.css"
 import AddIcon from '../components/AddIcon'
 import UploadInCloudIcon from '../components/UploadIcon'
+import Button from '../components/Button'
+import QRCode from "../images/qrcode.png"
 
 export const HomeScreen = () => {
     const [imageSrc, setImageSrc] = useState("")
@@ -69,21 +71,53 @@ export const HomeScreen = () => {
                     </div>
                 </label>
                 <div className='display-result'>
-                    <div className='compressed'>
-                        <div className="compressed-image" style={{ backgroundImage: `url(${imageSrc})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                            <div className='image-name'>
-                                <span>web_image.png</span>
-                                <button>X</button>
-                            </div>
-                            {/* {imageSrc && <div className="image-overlay"></div>} */}
-                            {/* <div className='saved-percentage'>-78%</div> */}
-                            {isLoading && <div className="loading-state">Uploading...</div>}
-                            {isCompressing && <div className="compressing-state">Compressing...</div>}
-                            <button type="submit" className='download' onClick={handleDownload} disabled={isDownloadDisabled}>Download</button>
+                    <div className="table-wrapper">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Before</th>
+                                        <th>Status</th>
+                                        <th>After</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td data-label="Name">
+                                            desert_locust_517340.jpg
+                                        </td>
+                                        <td data-label="Before">100 KB</td>
+                                        <td data-label="Status">
+                                            <span className='saved'>saved 67%</span>
+                                        </td>
+                                        <td data-label="After">45 KB</td>
+                                        <td data-label="action">
+                                            <Button
+                                                padding="5px 8px"
+                                                bkgColor="rgb(24, 92, 77)"
+                                                contentColor="#fff"
+                                                content="Download"
+                                            />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
+
                     </div>
-                    <div className='compressed'>
-                        <div className="compressed-qrcode"></div>
+                    <div className="action-wrapper">
+                        <Button
+                            padding="10px 15px"
+                            bkgColor="rgb(24, 92, 77)"
+                            contentColor="#fff"
+                            content="Copy URL"
+                            width={280}
+                        />
+                    </div>
+                    <div className="qrcode-wrapper">
+                        hey
                     </div>
                 </div>
             </div>
