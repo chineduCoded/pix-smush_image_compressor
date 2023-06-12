@@ -14,7 +14,7 @@ export const HomeScreen = () => {
             </dv>
             <div className='upload-container'>
                 <label htmlFor='upload-image' className="upload">
-                    <UploadInCloudIcon color='rgb(24, 92, 77)' size={40} />
+                    <UploadInCloudIcon color='rgb(24, 92, 77)' size={50} />
                     <p>Compress jpg, png, webp. Max 5MB</p>
                     <div>
                         <div>
@@ -32,6 +32,21 @@ export const HomeScreen = () => {
                         </div>
                     </div>
                 </label>
+                <div className='display-result'>
+                    <div className='compressed'>
+                        <div className="compressed-image">
+                            <div className='image-name'>
+                                <span>web_image.png</span>
+                                <button>X</button>
+                            </div>
+                            <div className='saved-percentage'>-78%</div>
+                            <button type="submit" className='download'>Download</button>
+                        </div>
+                    </div>
+                    <div className='compressed'>
+                        <div className="compressed-qrcode"></div>
+                    </div>
+                </div>
             </div>
         </div>
     )

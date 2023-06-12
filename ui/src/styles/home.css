@@ -30,7 +30,9 @@
 
 .upload-container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+
     margin-block-end: 50px;
 }
 
@@ -50,6 +52,7 @@
     color: rgb(115, 115, 115);
     cursor: pointer;
     border: 2px solid rgb(115, 115, 115);
+    margin-block-end: 40px;
 }
 
 .upload:hover {
@@ -70,4 +73,82 @@
     cursor: pointer;
     font-weight: 600;
     color: rgb(115, 115, 115);
+}
+
+.display-result {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.compressed {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 290px;
+    height: 290px;
+    border: 2px solid rgb(115, 115, 115);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.compressed-image {
+    border-radius: 5px;
+    padding: 3px;
+    width: 270px;
+    height: 270px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.image-name {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+}
+
+.image-name button {
+    font-weight: 700;
+    cursor: pointer;
+    background-color: rgb(249, 85, 64);
+    color: #fff;
+    border: none;
+    outline: auto;
+    padding: 3px 5px;
+}
+
+.image-name button:hover {
+    background-color: rgba(249, 85, 64, 0.86);
+}
+
+.saved-percentage {
+    text-align: center;
+    font-weight: 900;
+    font-size: 36px;
+}
+
+.download {
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    background-color: rgb(24, 92, 77);
+    border-radius: 5px;
+    color: #fff;
+    font-weight: 900;
+}
+
+.download:hover {
+    background-color: rgba(24, 92, 77, 0.86);
+}
+
+.compressed-qrcode {
+    background: rgb(249, 85, 64);
+    border-radius: 5px;
+    width: 270px;
+    height: 270px;
 }
