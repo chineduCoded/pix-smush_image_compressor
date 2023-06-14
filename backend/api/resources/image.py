@@ -158,7 +158,7 @@ def upload_compress():
         return jsonify({"error": "Failed to obtain compressed size."}), 500
 
 
-@image_bp.route("/images/<image_id>", methods=["GET"])
+@image_bp.route("/download/<image_id>", methods=["GET"])
 def download_image(image_id):
     """Download image file"""
     # Retrieve the image record from the database

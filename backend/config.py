@@ -7,7 +7,7 @@ from datetime import timedelta
 basedir = path.abspath(path.dirname(__file__))
 load_dotenv(path.join(basedir, '.env'))
 
-makedirs("/api/images", exist_ok=True)
+makedirs("images", exist_ok=True)
 makedirs("saved_qrcode", exist_ok=True)
 
 

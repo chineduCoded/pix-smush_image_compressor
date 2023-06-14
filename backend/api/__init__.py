@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
+from flask_cors import CORS
 # from flask_cache import Cache
 # import connexion
 
@@ -11,6 +12,7 @@ bcrypt = Bcrypt()
 db = SQLAlchemy()
 jwt = JWTManager()
 migrate = Migrate()
+cors = CORS()
 # cache = Cache()
 
 
@@ -26,6 +28,7 @@ def create_app():
     jwt.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
+    cors.init_app(app)
     # cache.init_app(app)
 
     with app.app_context():
