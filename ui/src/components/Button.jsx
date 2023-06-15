@@ -1,13 +1,13 @@
 import React from 'react';
 
-const Button = ({ padding, size, bkgColor, content, width, height, contentColor, onSubmit, onClick }) => {
+const Button = ({ padding, size, bkgColor, content, width, height, contentColor, onSubmit, onClick}) => {
     const buttonStyle = {
         padding,
         fontSize: size,
         backgroundColor: bkgColor,
         color: contentColor,
         width,
-        height
+        height,
     };
 
     return (

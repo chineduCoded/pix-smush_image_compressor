@@ -32,13 +32,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-
+    justify-content: center;
     margin-block-end: 50px;
 }
 
 .upload {
-    width: 100%;
-    max-width: 600px;
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -53,6 +51,7 @@
     cursor: pointer;
     border: 2px solid rgb(115, 115, 115);
     margin-block-end: 40px;
+    gap: 20px;
 }
 
 .upload:hover {
@@ -156,11 +155,12 @@ table tbody tr:hover {
 .qrcode-wrapper {
     display: flex;
     justify-content: center;
-    align-items: center;
-    flex-direction: column;
+}
+
+.image {
     width: 280px;
     height: 280px;
-    border-radius: 8px;
+    border-radius: 5px;
 }
 
 img {
@@ -168,3 +168,35 @@ img {
     height: 100%;
     object-fit: cover;
 }
+
+@media screen and (min-width: 320px) {
+    .upload {
+      padding: 20px;
+      font-size: 14px;
+      max-width: 280px;
+    }
+}
+
+@media (min-width: 480px) {
+    .upload {
+      padding: 30px;
+      font-size: 16px;
+      max-width: 500px;
+    }
+}
+
+@media (min-width: 768px) {
+    .upload {
+      padding: 40px;
+      font-size: 18px;
+      max-width: 600px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .upload {
+      padding: 60px;
+      font-size: 20px;
+      max-width: 800px;
+    }
+  }

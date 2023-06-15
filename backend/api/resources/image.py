@@ -26,7 +26,6 @@ image_bp = Blueprint(
     "image_bp", __name__, url_prefix="/api"
 )
 
-
 def extract_exif_data(image):
     exif_data = image.getexif()
     if exif_data is not None:
@@ -142,7 +141,7 @@ def upload_compress():
             "original_size": get_size_format(new_image.file_size),
             "original_format": new_image.file_format,
             "filename": new_image.file_name,
-            "file_path": new_image.file_path,
+            "image_url": new_image.file_path,
             "width": new_image.width,
             "height": new_image.height,
             "space_saved": get_size_format(new_image.space_saved),
