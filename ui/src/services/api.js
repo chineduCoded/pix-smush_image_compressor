@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 
-const baseUrl = "http://127.0.0.1:5000/api"
+const baseUrl = "http://127.0.0.1:5000/"
 
 export const pixSmushApi = createApi({
     reducerPath: "pixSmushApi",
@@ -9,18 +9,19 @@ export const pixSmushApi = createApi({
     endpoints: (builder) => ({
         compressImage: builder.mutation({
             query: (imageData) => ({
-                url: "/images/compress",
+                url: "api/images/compress",
                 method: "POST",
                 body: imageData,
             }),
             invalidatesTags: ['Images'],
         }),
         downloadImage: builder.query({
-            query: (imageId) => `/download/${imageId}`,
+            query: (id) => `api/download/${id}`,
+            transformResponse: (response) => response.blob(),
             providesTags: ['Images'],
         }),
         getAllImages: builder.query({
-            query: () => "/images",
+            query: () => "api/images",
             providesTags: ['Images'],
         }),
     }),

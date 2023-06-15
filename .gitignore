@@ -1,6 +1,9 @@
 # Exclude virtual environment folder
 backend/.venv/
 
+# Exclude images folder
+backend/images/
+
 # Exclude environment variables file
 backend/.env
 backend/credentials.env

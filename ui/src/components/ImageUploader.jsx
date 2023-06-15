@@ -11,7 +11,6 @@ const ImageUploader = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [downloadButtonDisabled, setDownloadButtonDisabled] = useState(false);
   const [compressImage, { isLoading, isError, isSuccess, error }] = useCompressImageMutation()
-  const downloadImage = useDownloadImageQuery()
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
@@ -36,19 +35,34 @@ const ImageUploader = () => {
 
   console.log(compressedData)
 
-  const handleImageDownload = (data) => {
-    if (data && data.id) {
-      const { id } = data
-      downloadImage(id)
-    } else {
-      console.error("Image cannot be downloaded!");
+  const DownloadImage = ({ id, filename }) => {
+    
+    const handleImageDownload = () => {
+      if (id) {
+        const baseUrl = "http://127.0.0.1:5000/api/download/"
+        const url = `${baseUrl}${id}`
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', filename)
 
-    // Set an error message state
-    setErrorMessage("Image cannot be downloaded!");
-
-    // Disable the download button
-    setDownloadButtonDisabled(true);
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      } else {
+        console.error("Image cannot be downloaded!");
+      }
     }
+  
+    return (
+      <Button
+        content="download"
+        padding="8px 12px"
+        bkgColor="rgb(24, 92, 77)"
+        contentColor="white"
+        disabled={isLoading || error }
+        onClick={handleImageDownload}
+      />
+    );
   }
 
   return (
@@ -103,14 +117,7 @@ const ImageUploader = () => {
                   </td>
                   <td data-label="After">{compressedData.compressed_size}</td>
                   <td data-label="action">
-                  <Button
-                    content="download"
-                    padding="8px 12px"
-                    bkgColor="rgb(24, 92, 77)"
-                    contentColor="white"
-                    onClick={() => handleImageDownload(compressedData)}
-                    disabled={downloadButtonDisabled}
-                  />
+                  <DownloadImage id={compressedData.id} filemame={compressedData.filename} />
                   {errorMessage && <div>{errorMessage}</div>}
                   </td>
                 </tr>
