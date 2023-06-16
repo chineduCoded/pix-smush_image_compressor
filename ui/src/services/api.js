@@ -20,6 +20,11 @@ export const pixSmushApi = createApi({
             transformResponse: (response) => response.blob(),
             providesTags: ['Images'],
         }),
+        QRCode: builder.query({
+            query: (id) => `api/qrcode/${id}`,
+            transformResponse: (response) => response.blob(),
+            providesTags: ["Images"]
+        }),
         getAllImages: builder.query({
             query: () => "api/images",
             providesTags: ['Images'],
@@ -27,4 +32,4 @@ export const pixSmushApi = createApi({
     }),
 })
 
-export const { useCompressImageMutation, useDownloadImageQuery, useGetAllImagesQuery } = pixSmushApi
+export const { useCompressImageMutation, useDownloadImageQuery, useQRCodeQuery, useGetAllImagesQuery } = pixSmushApi

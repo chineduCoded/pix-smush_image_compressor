@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 from PIL import Image as PILImage, ExifTags
 import json
 from io import BytesIO
+import qrcode
 import mimetypes
 from .. import db
 from ..models.image import Image, ImageBlob
@@ -197,6 +198,45 @@ def download_image(image_id):
         )
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
+    
+@image_bp.route("/qrcode/<image_id>", methods=["GET"])
+def generate_qrcode(image_id):
+    """
+    Generates a QR code image
+
+    Args:
+        image_id (str): Image ID in string format
+
+    Returns:
+        QR code image (PNG format)
+    """
+    image = Image.query.get(image_id)
+
+    if image is None:
+        return jsonify({"error": "Image not found!"}), 404
+
+    if image.file_path:
+
+        # Generate QR code
+        qr = qrcode.QRCode(
+            version=None,
+            error_correction=qrcode.constants.ERROR_CORRECT_M,
+            box_size=10,
+            border=5,
+        )
+        qr.add_data(image.file_path)  # Use image.file_path instead of image.url
+        qr.make(fit=True)
+        qr_img = qr.make_image()
+
+        # Save the QR code image to a byte stream
+        img_byte_stream = BytesIO()
+        qr_img.save(img_byte_stream, format='PNG')
+        img_byte_stream.seek(0)
+
+        # Return the QR code image
+        return send_file(img_byte_stream, mimetype='image/png')
+    else:
+        return jsonify({"error": "Could not generate QR code!"}), 400
 
 
 @image_bp.route("/images", methods=["GET"])

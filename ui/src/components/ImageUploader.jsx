@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
-import { useCompressImageMutation, useDownloadImageQuery } from "../services/api"
+import React, { useEffect, useState } from 'react';
+import { useCompressImageMutation, useDownloadImageQuery, useQRCodeQuery } from "../services/api"
 import UploadInCloudIcon from './UploadIcon';
 import AddIcon from './AddIcon';
 import Button from "./Button"
 import "../styles/home.css"
 import QRCode from "../images/qrcode.png"
+import axios from 'axios';
 
 const ImageUploader = () => {
   const [compressedData, setCompressedData] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [downloadButtonDisabled, setDownloadButtonDisabled] = useState(false);
+  const [imageSrc, setImageSrc] = useState('');
   const [compressImage, { isLoading, isError, isSuccess, error }] = useCompressImageMutation()
 
   const handleFileChange = async (e) => {
@@ -32,8 +34,6 @@ const ImageUploader = () => {
       console.error({"Error compressing image": err})
     }
   };
-
-  console.log(compressedData)
 
   const DownloadImage = ({ id, filename }) => {
     
@@ -63,6 +63,40 @@ const ImageUploader = () => {
         onClick={handleImageDownload}
       />
     );
+  }
+
+  const ImageSrc = ({ id }) => {
+    const baseUrl = "http://127.0.0.1:5000/api/qrcode/"
+    const url = `${baseUrl}${id}`
+
+   
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const response = await axios.get(url, {
+            responseType: 'arraybuffer',
+          });
+          const base64 = btoa(
+            new Uint8Array(response.data).reduce(
+              (data, byte) => data + String.fromCharCode(byte),
+              ''
+            )
+          );
+          const objectUrl = `data:image/png;base64,${base64}`;
+          setImageSrc(objectUrl);
+        } catch (error) {
+          console.error('Error fetching QR code image:', error);
+        }
+      };
+  
+      fetchData();
+    }, []);
+
+    return (
+      <>
+       <img src={imageSrc} alt="QR Code" />
+      </>
+    )
   }
 
   return (
@@ -136,7 +170,8 @@ const ImageUploader = () => {
         </div>
         <div className="qrcode-wrapper">
           <div className="image">
-            <img src={QRCode} alt='QR code' />
+            {/* <img src={QRCode} alt='QR code' /> */}
+            <ImageSrc id={compressedData.id} />
           </div>
         </div>
       </div>

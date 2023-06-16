@@ -6,16 +6,12 @@ import reportWebVitals from './reportWebVitals';
 import { router } from "./app"
 import { Provider } from "react-redux"
 import { store } from "././services/store"
-import { ApiProvider } from "@reduxjs/toolkit/query/react"
-import { pixSmushApi } from "./services/api"
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <ApiProvider api={pixSmushApi}>
-        <RouterProvider router={router} />
-      </ApiProvider>
+    < RouterProvider router={router} /> 
     </Provider>
   </React.StrictMode>
 );
