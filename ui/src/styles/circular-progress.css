@@ -1,0 +1,19 @@
+.progress-ring__circle {
+  stroke: #ddd;
+  stroke-width: 10;
+  fill: transparent;
+}
+
+.progress-ring__circle--progress {
+  stroke: rgb(24, 92, 77);
+  stroke-width: 10;
+  fill: transparent;
+  stroke-dasharray: 314;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.35s;
+}
+
+.progress-ring__text {
+  font-size: 24px;
+  fill: #333;
+}

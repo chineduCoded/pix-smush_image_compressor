@@ -98,6 +98,8 @@ def upload_compress():
 
         # Save the compressed image to the file system
         file_path = save_image_data(compressed_data, filename)
+        base_path = current_app.config["BASE_URL"]
+        image_full_path = f"{base_path}/{file_path}"
 
         # Create a new Image object
         new_image = Image(
@@ -108,7 +110,7 @@ def upload_compress():
             space_saved=space_saved,
             compression_ratio=compression_ratio,
             file_format=file_format,
-            file_path=file_path,
+            file_path=image_full_path,
             color_mode=color_mode,
             width=width,
             height=height,
@@ -217,6 +219,10 @@ def generate_qrcode(image_id):
 
     if image.file_path:
 
+        image_path = current_app.config["BASE_URL"]
+        image_url_path = f"{image_path}/{image.file_path}"
+
+
         # Generate QR code
         qr = qrcode.QRCode(
             version=None,
@@ -224,7 +230,7 @@ def generate_qrcode(image_id):
             box_size=10,
             border=5,
         )
-        qr.add_data(image.file_path)  # Use image.file_path instead of image.url
+        qr.add_data(image_url_path)  # Use image.file_path instead of image.url
         qr.make(fit=True)
         qr_img = qr.make_image()
 

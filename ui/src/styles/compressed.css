@@ -1,0 +1,93 @@
+/* Styles for the compressed image */
+.compressed-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 30px;
+}
+
+h2 {
+    color: rgb(115, 115, 115);
+    text-align: center;
+}
+
+.btns-holder {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-block-end: 50px;
+}
+
+.icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border: none;
+    outline: none;
+}
+
+.prev {
+    background-color: #555;
+}
+
+.prev:hover {
+    background-color: rgb(24, 92, 77);
+}
+
+.download {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 28px 140px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    background-color: rgb(24, 92, 77);
+    color: #fff;
+}
+
+.download:hover {
+    background-color: rgba(24, 92, 77, 0.8);
+}
+
+.link_del {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+
+.link, .trash {
+    background-color: rgb(24, 92, 77);
+}
+
+.link:hover, .trash:hover {
+    background-color: rgba(24, 92, 77, 0.8);
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.progress {
+    height: 100px;
+    width: 100px;
+}
+
+.saved {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+}
