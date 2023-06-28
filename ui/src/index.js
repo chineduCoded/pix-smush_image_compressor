@@ -6,13 +6,16 @@ import reportWebVitals from './reportWebVitals';
 import { router } from "./app"
 import { Provider } from "react-redux"
 import { store } from "././services/store"
+import PixSmushContext from './contexts/pixSmushContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <Provider store={store}>
-    < RouterProvider router={router} /> 
-    </Provider>
+    <PixSmushContext>
+      <Provider store={store}>
+      < RouterProvider router={router} /> 
+      </Provider>
+    </PixSmushContext>
   </React.StrictMode>
 );
 

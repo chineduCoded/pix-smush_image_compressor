@@ -23,8 +23,6 @@ const ImageUploader = () => {
     try {
       const { data } = await compressImage(formData);
       setCompressedData(data)
-      // const imageId = data.id
-      // handleImageDownload(imageId);
       console.log(data)
     } catch (err) {
       console.error({"Error compressing image": err})

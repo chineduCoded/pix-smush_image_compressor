@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React from "react"
 import "../styles/compressed.css"
 import { FaArrowLeft, FaDownload, FaLink, FaLongArrowAltRight } from "react-icons/fa"
 import { HiOutlineTrash } from "react-icons/hi"
@@ -6,14 +6,11 @@ import { Tooltip } from 'react-tooltip'
 import { CircularProgressbarWithChildren } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import Modal from "./Modal"
+import { usePixSmush } from "../contexts/pixSmushContext"
 
 
 export const CompressedImage = ({ percentage, originalSize, compressedSize, id, filename, imageUrl }) => {
-    const [openModal, setOpenModal] = useState(false)
-
-    const toggleModal = () => {
-      setOpenModal(prev => !prev)
-    }
+    const { toggleModal } = usePixSmush()
    
     const DownloadImage = ({ id, filename }) => {
     
@@ -69,10 +66,7 @@ export const CompressedImage = ({ percentage, originalSize, compressedSize, id, 
                     </button>
                     <Tooltip id="share" place="top" effect="solid" />
                     <Modal 
-                    openModal={openModal} 
-                    setOpenModal={setOpenModal} 
-                    id={id} 
-                    filename={filename}
+                    id={id}
                     imageUrl={imageUrl}
                     />
                     <button 

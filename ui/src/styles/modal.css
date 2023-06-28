@@ -32,11 +32,61 @@
   .content {
     display: flex;
     justify-content: center;
+    align-items: center;
     flex-direction: column;
   }
 
-  .url {
+  .copy-link {
+    --width: 46px;
+    --height: 36px;
+    --padding: 10px 15px;
+
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 500px;
     margin-block-end: 30px;
+  }
+
+  .copy-link-url {
+    flex-grow: 1;
+    padding: var(--padding);
+    border: 2px solid #ccc;
+    border-right: none;
+    outline: none;
+    font-size: 16px;
+    border-radius: 5px 0 0 5px;
+  }
+
+  .copy-link-url:hover {
+    background: #eee;
+    cursor: pointer;
+  }
+
+  .copy-link-btn {
+    flex-shrink: 0;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    background: rgb(24, 92, 77);
+    color: #fff;
+    border-radius: 0 5px 5px 0;
+  }
+
+  .copy-link-btn:hover {
+    background: rgba(24, 92, 77, 0.8);
+  }
+
+  .copy-link-icon {
+    display: flex;
+    align-items: center;
+    gap: 5px;
   }
 
   .image-holder {
@@ -59,5 +109,6 @@
   .modal-open {
     overflow: hidden;
   }
+
 
   
